@@ -5,138 +5,79 @@ import seaborn as sns
 class DataQuality:
     def __init__(self, df: pd.DataFrame):
         """
-        Inicializa o módulo de qualidade de dados com o DataFrame.
+        Inicializa a classe DataQuality com um DataFrame.
+        
+        :param df: DataFrame do pandas a ser analisado
         """
         self.df = df
     
-    def count_missing(self):
-        """
-        Conta os valores nulos de cada coluna do DataFrame.
-        """
-        missing_counts = self.df.isnull().sum()
-        print("Contagem de valores nulos por coluna:")
-        print(missing_counts)
-        return missing_counts
-    
-    def count_unique(self):
-        """
-        Conta os valores únicos de cada coluna do DataFrame.
-        """
-        unique_counts = self.df.nunique()
-        print("Contagem de valores únicos por coluna:")
-        print(unique_counts)
-        return unique_counts
-    
-    def value_counts_categorical(self):
-        """
-        Exibe a contagem de valores para cada coluna categórica do DataFrame.
-        """
-        categorical_columns = self.df.select_dtypes(include='object').columns
-        for col in categorical_columns:
-            print(f"\nContagem de valores para {col}:")
-            print(self.df[col].value_counts())
-    
-    def describe_numeric(self):
-        """
-        Exibe a descrição estatística das colunas numéricas.
-        """
-        print("Descrição estatística das colunas numéricas:")
-        print(self.df.describe())
-
-    def count_text_values(self):
-        """
-        Conta os valores de texto únicos de cada coluna do DataFrame.
-        """
-        text_columns = self.df.select_dtypes(include=['object']).columns
-        text_counts = {col: self.df[col].nunique() for col in text_columns}
-        print("Contagem de valores de texto únicos por coluna:")
-        print(pd.Series(text_counts))
-        return text_counts
-    
-    def count_float_values(self):
-        """
-        Conta os valores float únicos de cada coluna do DataFrame.
-        """
-        float_columns = self.df.select_dtypes(include=['float64']).columns
-        float_counts = {col: self.df[col].nunique() for col in float_columns}
-        print("Contagem de valores float únicos por coluna:")
-        print(pd.Series(float_counts))
-        return float_counts
-    
-    def count_int_values(self):
-        """
-        Conta os valores inteiros únicos de cada coluna do DataFrame.
-        """
-        int_columns = self.df.select_dtypes(include=['int64']).columns
-        int_counts = {col: self.df[col].nunique() for col in int_columns}
-        print("Contagem de valores inteiros únicos por coluna:")
-        print(pd.Series(int_counts))
-        return int_counts
-
-    def plot_categorical_distribution(self):
-        """
-        Gera gráficos de barras para a distribuição de valores em colunas categóricas.
-        """
-        categorical_columns = self.df.select_dtypes(include='object').columns
-        for col in categorical_columns:
-            plt.figure(figsize=(10, 5))
-            self.df[col].value_counts().plot(kind='bar')
-            plt.title(f'Distribuição de valores para {col}')
-            plt.xlabel('Valores')
-            plt.ylabel('Contagem')
-            plt.xticks(rotation=45)
-            plt.tight_layout()
-            plt.show()
-
-    def plot_numeric_distribution(self):
-        """
-        Gera histogramas para a distribuição de valores em colunas numéricas.
-        """
-        numeric_columns = self.df.select_dtypes(include=['int64', 'float64']).columns
-        for col in numeric_columns:
-            plt.figure(figsize=(10, 5))
-            sns.histplot(self.df[col], kde=True)
-            plt.title(f'Distribuição de valores para {col}')
-            plt.xlabel('Valores')
-            plt.ylabel('Contagem')
-            plt.tight_layout()
-            plt.show()
-
     def generate_report(self):
         """
-        Gera um relatório completo de qualidade de dados, retornando uma string.
+        Gera um relatório completo de qualidade de dados, retornando uma string com formato vertical.
+        
+        :return: String contendo o relatório completo
         """
+        # Lista para armazenar todas as linhas do relatório
         report = []
         
+        # Título do relatório
         report.append("=== Relatório de Qualidade de Dados ===\n")
         
+        # 1. Contagem de valores ausentes
         report.append("1. Contagem de valores ausentes:")
-        report.append(str(self.df.isnull().sum()) + "\n")
+        for col, count in self.df.isnull().sum().items():
+            report.append(f"{col}: {count}")
+        report.append("")
         
+        # 2. Contagem de valores únicos
         report.append("2. Contagem de valores únicos:")
-        report.append(str(self.df.nunique()) + "\n")
+        for col, count in self.df.nunique().items():
+            report.append(f"{col}: {count}")
+        report.append("")
         
+        # 3. Contagem de valores de texto únicos
         report.append("3. Contagem de valores de texto únicos:")
+        # Seleciona apenas as colunas do tipo objeto (geralmente texto)
         text_columns = self.df.select_dtypes(include=['object']).columns
-        text_counts = {col: self.df[col].nunique() for col in text_columns}
-        report.append(str(pd.Series(text_counts)) + "\n")
+        for col in text_columns:
+            report.append(f"{col}: {self.df[col].nunique()}")
+        report.append("")
         
+        # 4. Contagem de valores float únicos
         report.append("4. Contagem de valores float únicos:")
+        # Seleciona apenas as colunas do tipo float64
         float_columns = self.df.select_dtypes(include=['float64']).columns
-        float_counts = {col: self.df[col].nunique() for col in float_columns}
-        report.append(str(pd.Series(float_counts)) + "\n")
+        for col in float_columns:
+            report.append(f"{col}: {self.df[col].nunique()}")
+        report.append("")
         
+        # 5. Contagem de valores inteiros únicos
         report.append("5. Contagem de valores inteiros únicos:")
+        # Seleciona apenas as colunas do tipo int64
         int_columns = self.df.select_dtypes(include=['int64']).columns
-        int_counts = {col: self.df[col].nunique() for col in int_columns}
-        report.append(str(pd.Series(int_counts)) + "\n")
+        for col in int_columns:
+            report.append(f"{col}: {self.df[col].nunique()}")
+        report.append("")
         
+        # 6. Contagem de valores para colunas categóricas
         report.append("6. Contagem de valores para colunas categóricas:")
         for col in text_columns:
             report.append(f"\nContagem de valores para {col}:")
-            report.append(str(self.df[col].value_counts()) + "\n")
+            # Obtém a contagem de cada valor único na coluna
+            value_counts = self.df[col].value_counts()
+            for value, count in value_counts.items():
+                report.append(f"  {value}: {count}")
+        report.append("")
         
+        # 7. Descrição estatística das colunas numéricas
         report.append("7. Descrição estatística das colunas numéricas:")
-        report.append(str(self.df.describe()) + "\n")
+        # Obtém estatísticas descritivas para colunas numéricas
+        desc = self.df.describe()
+        for col in desc.columns:
+            report.append(f"\nEstatísticas para {col}:")
+            for stat, value in desc[col].items():
+                # Formata o valor para duas casas decimais
+                report.append(f"  {stat}: {value:.2f}")
         
+        # Junta todas as linhas do relatório em uma única string
         return "\n".join(report)
